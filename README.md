@@ -25,7 +25,7 @@ no mods, servers, or game launch required.
    *Steam default path*  
    `C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Data`
 
-3. **Double-click** the script (or run `py build_defs_browser.py`).  
+3. **Right-click** the script and select Open With and select Python (or run `py build_defs_browser.py`).  
    It scans **Core + all DLCs** and creates `RimDefs.html` in the same folder.
 
 4. **Open** `RimDefs.html` in your browser and explore!
