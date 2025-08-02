@@ -9,12 +9,12 @@ no mods, servers, or game launch required.
 
 | Feature | Details |
 |---------|---------|
-| 🔍 **Full-text search** | defType, defName, labels, descriptions, field values, file paths, raw XML — all highlighted |
-| 🗂 **Filters** | by **Source** (Core / each DLC) and **DefType**, with “All / None” presets & instant typing filter |
-| 📑 **Details tabs** | **Overview** • **Inheritance** • **Raw XML** • **Similar Tags** (unique or full list) |
-| 💾 **Offline viewer** | Generates one `RimDefs.html`. Double-click to open—even without RimWorld running |
-| ⚡ **Copy helpers** | one-click: `defType:defName`, file path, raw XML |
-| 💡 **Patch support** | PatchOperation files listed alongside Defs, clearly marked `PATCH` |
+| **Full-text search** | defType, defName, labels, descriptions, field values, file paths, raw XML — all highlighted |
+| **Filters** | by **Source** (Core / each DLC) and **DefType**, with “All / None” presets & instant typing filter |
+| **Details tabs** | **Overview** • **Inheritance** • **Raw XML** • **Similar Tags** (unique or full list) |
+| **Offline viewer** | Generates one `RimDefs.html`. Double-click to open—even without RimWorld running |
+| **Copy helpers** | one-click: `defType:defName`, file path, raw XML |
+| **Patch support** | PatchOperation files listed alongside Defs, clearly marked `PATCH` |
 
 ## Quick Start
 
@@ -30,7 +30,7 @@ no mods, servers, or game launch required.
 
 4. **Open** `RimDefs.html` in your browser and explore!
 
-## ⚠Legal / EULA notice
+## Legal / EULA notice
 
 The generated HTML embeds RimWorld’s XML data.  
 That content is © **Ludeon Studios** and covered by the
