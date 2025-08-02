@@ -361,6 +361,8 @@ HTML_TEMPLATE = r"""<!doctype html>
     --xml-attr: #86efac;
     --xml-string: #fcd34d;
     --xml-comment: #9ca3af;
+    pre mark { pointer-events:none; }
+
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: var(--text); background: var(--bg); }
