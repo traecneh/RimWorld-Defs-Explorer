@@ -361,9 +361,25 @@ HTML_TEMPLATE = r"""<!doctype html>
     --xml-attr: #86efac;
     --xml-string: #fcd34d;
     --xml-comment: #9ca3af;
-    pre mark { pointer-events:none; }
-
   }
+
+  pre mark { pointer-events:none; }
+
+  /* active outline like other tabs */
+  .mini-btn.active { outline: 2px solid var(--accent); }
+
+  /* similar-all table */
+  .similar-table {
+    display: grid;
+    /* ⬇ only this line changes */
+    grid-template-columns: repeat(3, max-content) 1fr;
+    gap: 4px 12px;
+  }
+
+  .similar-table .hdr { font-weight: 700; color: var(--muted); }
+  .similar-table .cell { font-family: ui-monospace, monospace; white-space: nowrap; }
+
+
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: var(--text); background: var(--bg); }
   header { position: sticky; top: 0; z-index: 5; background: linear-gradient(180deg, rgba(17,24,39,0.95), rgba(17,24,39,0.8) 70%, rgba(17,24,39,0)); backdrop-filter: blur(6px); padding: 12px 16px; border-bottom: 1px solid var(--border); }
@@ -449,6 +465,32 @@ HTML_TEMPLATE = r"""<!doctype html>
   #tagValuesBox ul { margin: 0; padding: 0; list-style: none; max-height: 70vh; overflow: auto; }
   #tagValuesBox li { padding: 2px 0; font-family: ui-monospace, monospace; }
   #tagValuesBox .close { cursor: pointer; float: right; font-size: 18px; margin-left: 8px; }
+
+  /* ── Horizontal scroll helpers ──────────────────────────── */
+  #rawXml          { overflow-x: auto; }      /* Raw XML box      */
+  /* ── horizontal scroll for Similar-Tags ─────────────────── */
+  /* Similar-Tags scrolling ---------------------------------*/
+  #similarBody { overflow-x: auto; }          /* gives the pane its scrollbar */
+
+  /* Similar-Tags scrolling ------------------------------------------*/
+  #similarBody{
+    max-height: 65vh;          /* any height that feels right */
+    overflow: auto;            /* both axes */
+    padding-right: 4px;        /* room for vertical bar */
+  }
+
+  .similar-table{
+    display: inline-grid;      /* shrink-wrap width so X-scroll works */
+    grid-template-columns: repeat(3, max-content) 1fr;
+    gap: 4px 12px;
+  }
+
+  #similarBody .mono,
+  .similar-table .cell{ white-space: nowrap; }
+
+
+
+
 
 
 </style>
@@ -557,10 +599,9 @@ HTML_TEMPLATE = r"""<!doctype html>
       <div id="tab-similar" class="tabpane" style="display:none;">
         <div class="pad">
           <div class="row" id="similarHeader" style="gap:8px; align-items:center;">
-            <h3 id="similarTitle" style="margin:0;"></h3>
-            <span class="grow"></span>
             <button class="mini-btn" id="similarUnique">Unique</button>
             <button class="mini-btn" id="similarAll">All</button>
+            <h3 id="similarTitle" style="margin:0;"></h3>            
           </div>
           <div id="similarBody" style="margin-top:12px;"></div>
         </div>
@@ -688,31 +729,47 @@ HTML_TEMPLATE = r"""<!doctype html>
                     : (a,b)=>a.localeCompare(b,undefined,{numeric:true}));
       similarTitle.textContent = `<${tagName}> — ${vals.length} unique value${vals.length!==1?'s':''}`;
       similarBody.innerHTML = vals.map(v=>`<div class="mono">${escapeHtml(v)}</div>`).join("") || '(none)';
-    } else {
-      const occ = collectAllOccurrences(tagName);
-      occ.sort((a,b)=>a.val.localeCompare(b.val,undefined,{numeric:true}) ||
-                      a.src.localeCompare(b.src) ||
-                      a.type.localeCompare(b.type) ||
-                      a.name.localeCompare(b.name));
-      similarTitle.textContent = `<${tagName}> — ${occ.length} total occurrence${occ.length!==1?'s':''}`;
-      similarBody.innerHTML = occ.map(o=>`
-        <div class="mono">
-          <span class="chip">${escapeHtml(o.src)}</span>
-          <span class="chip">${escapeHtml(o.type)}</span>
-          ${escapeHtml(o.name)} — ${escapeHtml(o.val)}
-        </div>`).join("") || '(none)';
-    }
+      } else {   // similarMode === 'all'
+        const occ = collectAllOccurrences(tagName);
+        occ.sort((a,b)=> a.val .localeCompare(b.val, undefined, {numeric:true}) ||
+                        a.src .localeCompare(b.src) ||
+                        a.type.localeCompare(b.type) ||
+                        a.name.localeCompare(b.name));
+
+        similarTitle.textContent =
+          `<${tagName}> — ${occ.length} total occurrence${occ.length!==1?'s':''}`;
+
+        const header = `
+          <div class="hdr">Source</div>
+          <div class="hdr">DefType</div>
+          <div class="hdr">defName</div>
+          <div class="hdr">Value</div>
+        `;
+        const rows = occ.map(o => `
+          <div class="cell chip">${escapeHtml(o.src)}</div>
+          <div class="cell chip">${escapeHtml(o.type)}</div>
+          <div class="cell">${escapeHtml(o.name)}</div>
+          <div class="cell">${escapeHtml(o.val)}</div>
+        `).join("");
+
+        similarBody.innerHTML =
+          `<div class="similar-table">${header}${rows || '<div class="sub">(none)</div>'}</div>`;
+      }
+
     showTab('similar');
   }
 
-  similarUniqueBtn.onclick = () => {
-    similarMode = 'unique';
+  function setMode(mode){
+    similarMode = mode;
+    similarUniqueBtn.classList.toggle('active', mode === 'unique');
+    similarAllBtn.classList.toggle('active',  mode === 'all');
     if (currentTag) showValues(currentTag);
-  };
-  similarAllBtn.onclick = () => {
-    similarMode = 'all';
-    if (currentTag) showValues(currentTag);
-  };
+  }
+
+  similarUniqueBtn.onclick = () => setMode('unique');
+  similarAllBtn.onclick    = () => setMode('all');
+
+  setMode(similarMode);   // set initial outline
 
 
 
